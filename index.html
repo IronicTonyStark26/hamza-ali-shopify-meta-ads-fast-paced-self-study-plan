@@ -1,0 +1,434 @@
+
+
+
+<style>
+:root{
+--font-sans:Arial,sans-serif;--text-primary:#222;--text-secondary:#666;--text-muted:#888;
+--surface-0:#eee;--surface-1:#fff;--surface-2:#fafafa;--border:#ddd;--border-strong:#bbb;
+--radius:10px;--bg-accent:#e8f1ff;--text-accent:#0b57d0;--border-accent:#8ab4f8;
+--bg-success:#e8f5e9;--text-success:#2e7d32;--fill-success:#2e7d32;
+--bg-warning:#fff4e5;--text-warning:#9a6700;--border-warning:#f0c36d;
+--bg-pro:#f3e8ff;--text-pro:#6b21a8;--fill-accent:#0b57d0;
+}
+body{background:#f4f6f9;max-width:1100px;margin:auto;padding:20px;line-height:1.5}
+button:hover,.day-header:hover{opacity:.9}
+.stat-card,.day-card,.portfolio-tip{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+</style>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--text-primary)}
+.header{padding:1.5rem 0 1rem}
+.header h1{font-size:20px;font-weight:500;color:var(--text-primary)}
+.header p{font-size:14px;color:var(--text-secondary);margin-top:4px}
+.week-tabs{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.tab{padding:6px 16px;border-radius:var(--radius);border:0.5px solid var(--border-strong);font-size:13px;cursor:pointer;background:var(--surface-1);color:var(--text-secondary);transition:all 0.15s}
+.tab.active{background:var(--bg-accent);color:var(--text-accent);border-color:var(--border-accent);font-weight:500}
+.week-panel{display:none}.week-panel.active{display:block}
+.week-label{font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:0.75rem;text-transform:none}
+.day-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.day-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;user-select:none}
+.day-title{display:flex;align-items:center;gap:10px}
+.day-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.badge-shopify{background:var(--bg-success);color:var(--text-success)}
+.badge-meta{background:var(--bg-accent);color:var(--text-accent)}
+.badge-both{background:var(--bg-pro);color:var(--text-pro)}
+.badge-build{background:var(--bg-warning);color:var(--text-warning)}
+.day-name{font-size:14px;font-weight:500}
+.day-meta{font-size:12px;color:var(--text-muted)}
+.chevron{font-size:16px;color:var(--text-muted);transition:transform 0.2s}
+.day-card.open .chevron{transform:rotate(180deg)}
+.day-body{display:none;padding:0 14px 12px}
+.day-card.open .day-body{display:block}
+.task-list{list-style:none;margin-top:6px}
+.task-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-top:0.5px solid var(--border);cursor:pointer}
+.task-item:first-child{border-top:none}
+.checkbox{width:16px;height:16px;min-width:16px;border:1.5px solid var(--border-strong);border-radius:4px;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all 0.15s}
+.task-item.done .checkbox{background:var(--fill-success);border-color:var(--fill-success)}
+.task-item.done .task-text{color:var(--text-muted);text-decoration:line-through}
+.task-text{font-size:13px;color:var(--text-primary);line-height:1.4}
+.task-note{font-size:11px;color:var(--text-muted);margin-top:2px}
+.progress-bar-wrap{background:var(--surface-0);border-radius:20px;height:6px;margin:8px 0 4px;overflow:hidden}
+.progress-bar{height:6px;border-radius:20px;background:var(--fill-accent);transition:width 0.3s}
+.progress-label{font-size:11px;color:var(--text-muted)}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.25rem}
+.stat-card{background:var(--surface-1);border-radius:var(--radius);padding:12px 14px}
+.stat-label{font-size:11px;color:var(--text-muted);margin-bottom:4px}
+.stat-value{font-size:22px;font-weight:500;color:var(--text-primary)}
+.portfolio-tip{background:var(--bg-warning);border:0.5px solid var(--border-warning);border-radius:var(--radius);padding:10px 14px;margin-bottom:1rem;font-size:13px;color:var(--text-warning);display:flex;gap:8px;align-items:flex-start}
+</style>
+
+<button id="themeToggle" style="position:fixed;top:15px;right:15px;z-index:9999;padding:8px 14px;border:none;border-radius:8px;cursor:pointer">🌙 Dark</button>
+<div class="header">
+  <h1>Meta Ads + Shopify — 3-week study plan</h1>
+  <p>Starting tomorrow · Home textile portfolio · Hamza Ali's courses</p>
+</div>
+
+<div class="stats-row" id="statsRow">
+  <div class="stat-card"><div class="stat-label">Total tasks</div><div class="stat-value" id="totalCount">0</div></div>
+  <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-value" id="doneCount">0</div></div>
+  <div class="stat-card"><div class="stat-label">Overall progress</div><div class="stat-value" id="pctCount">0%</div></div>
+</div>
+
+<div class="portfolio-tip">
+  <i class="ti ti-bulb" aria-hidden="true" style="font-size:16px;margin-top:1px;min-width:16px"></i>
+  <span>Portfolio goal: build a live home textile Shopify store and run at least one real Meta Ads campaign — document results for your CV.</span>
+</div>
+
+<div class="week-tabs">
+  <button class="tab active" onclick="showWeek(0)">Week 1 — Foundations</button>
+  <button class="tab" onclick="showWeek(1)">Week 2 — Launch your store</button>
+  <button class="tab" onclick="showWeek(2)">Week 3 — Run + optimize ads</button>
+</div>
+
+<div id="weekPanels"></div>
+
+<script>
+const WEEKS = [
+  {
+    label: "Week 1 (Days 1–7) — Shopify foundations + Meta theory",
+    days: [
+      {
+        name: "Day 1", badge:"shopify", badgeLabel:"Shopify",
+        focus:"Shopify course: Sessions 1–2 (Intro + Product Research)",
+        tasks:[
+          {text:"Watch: Intro to Shopify Dropshipping (36 min)", note:""},
+          {text:"Watch: General vs Niche stores + One Product Stores (28 min)", note:"Decide: niche textile store ✓"},
+          {text:"Watch: Customer Buying Journey (14 min)", note:""},
+          {text:"Watch: Product Hunting for home textiles (38 min)", note:""},
+          {text:"Action: List 10 potential home textile products from AliExpress / CJ", note:"Portfolio task"},
+        ]
+      },
+      {
+        name: "Day 2", badge:"shopify", badgeLabel:"Shopify",
+        focus:"Shopify course: Sessions 3–4 (Sourcing + Payment Setup)",
+        tasks:[
+          {text:"Watch: Product Sourcing — AutoDS + CJDropshipping (52 min)", note:""},
+          {text:"Watch: Company registration options (UK LLC or US LLC) — 58 min", note:"Choose your preferred route"},
+          {text:"Watch: PayPal, Stripe, Wise setup from Pakistan (55 min)", note:""},
+          {text:"Action: Start your company registration process", note:"Required to run real ads"},
+        ]
+      },
+      {
+        name: "Day 3", badge:"shopify", badgeLabel:"Shopify",
+        focus:"Shopify course: Session 5 — Store creation (part 1)",
+        tasks:[
+          {text:"Watch: Shopify account setup + Important settings (64 min)", note:""},
+          {text:"Watch: Install theme + Customize header & home page (72 min)", note:""},
+          {text:"Action: Create your Shopify store with a textile-themed name", note:"Portfolio task — screenshot for CV"},
+          {text:"Action: Choose and install a free theme (Dawn or Sense work well)", note:""},
+        ]
+      },
+      {
+        name: "Day 4", badge:"shopify", badgeLabel:"Shopify",
+        focus:"Shopify course: Session 5 — Store creation (part 2)",
+        tasks:[
+          {text:"Watch: Customize footer + Import products (41 min)", note:""},
+          {text:"Watch: Customize product page + AliExpress reviews (89 min)", note:""},
+          {text:"Watch: Domain, Stripe/PayPal connection + speed optimize (21 min)", note:""},
+          {text:"Action: Add 5–8 home textile products with full descriptions", note:"Portfolio task"},
+        ]
+      },
+      {
+        name: "Day 5", badge:"meta", badgeLabel:"Meta Ads",
+        focus:"Meta Ads course: Sessions 1–2 (Science of ads + AI creatives)",
+        tasks:[
+          {text:"Watch: Science of Facebook Ads + Ad Quality Rankings (64 min)", note:""},
+          {text:"Watch: The Andromeda Update (14 min)", note:"Critical for 2026 strategy"},
+          {text:"Watch: Ad Creative guidelines + Creative strategy (90 min)", note:""},
+          {text:"Watch: Buyer Persona Targeting (14 min)", note:""},
+          {text:"Action: Write a buyer persona for your home textile customer", note:"Portfolio task"},
+        ]
+      },
+      {
+        name: "Day 6", badge:"meta", badgeLabel:"Meta Ads",
+        focus:"Meta Ads course: Session 2 — Ad creative formats",
+        tasks:[
+          {text:"Watch: UGC Video Ads deep-dive (171 min — take breaks!)", note:"Most important format for textiles"},
+          {text:"Watch: Product-focused Image Ads (23 min)", note:""},
+          {text:"Action: Script 2 ad concepts for your textile products (UGC style)", note:""},
+          {text:"Action: Collect reference images/videos of textile products", note:"Portfolio task"},
+        ]
+      },
+      {
+        name: "Day 7", badge:"both", badgeLabel:"Review",
+        focus:"Catch-up + review + store polish",
+        tasks:[
+          {text:"Re-watch any video you felt unclear on", note:"Use Hamza's support portal for questions"},
+          {text:"Polish your Shopify store homepage and product pages", note:""},
+          {text:"Write week 1 reflection: what you learned + what surprised you", note:"Add to portfolio doc"},
+          {text:"Action: Take screenshots of your store for your portfolio", note:""},
+        ]
+      },
+    ]
+  },
+  {
+    label: "Week 2 (Days 8–14) — Meta setup + connect store + create first ads",
+    days: [
+      {
+        name: "Day 8", badge:"meta", badgeLabel:"Meta Ads",
+        focus:"Meta Ads course: Sessions 3–4 (Business Page + Ads Manager)",
+        tasks:[
+          {text:"Watch: Business page creation + major settings (46 min)", note:""},
+          {text:"Watch: Customer management + Automations (32 min)", note:""},
+          {text:"Watch: Ads Manager interface + buying types (39 min)", note:""},
+          {text:"Action: Create your Facebook Business Page for your textile brand", note:"Portfolio task"},
+        ]
+      },
+      {
+        name: "Day 9", badge:"meta", badgeLabel:"Meta Ads",
+        focus:"Meta Ads course: Session 5 — Events Manager + Pixel",
+        tasks:[
+          {text:"Watch: Meta Events intro + Advertiser-side optimization (32 min)", note:""},
+          {text:"Watch: Shopify Store setup — Pixel, CAPI, Attribution (51 min)", note:"Directly relevant to your store"},
+          {text:"Watch: Custom Conversions setup (42 min)", note:""},
+          {text:"Action: Install Meta Pixel on your Shopify store + verify it fires", note:"Portfolio task — screenshot"},
+        ]
+      },
+      {
+        name: "Day 10", badge:"meta", badgeLabel:"Meta Ads",
+        focus:"Meta Ads course: Sessions 6–8 (Commerce, Audiences, Business Manager)",
+        tasks:[
+          {text:"Watch: Catalog creation + Facebook Shop (35 min)", note:""},
+          {text:"Watch: Custom Audiences + Lookalike + Advantage+ (64 min)", note:""},
+          {text:"Watch: Business Manager setup (25 min)", note:""},
+          {text:"Action: Create your product catalog and connect it to your store", note:""},
+        ]
+      },
+      {
+        name: "Day 11", badge:"meta", badgeLabel:"Meta Ads",
+        focus:"Meta Ads course: Session 9 — Performance Marketing (Phase 0 & 1)",
+        tasks:[
+          {text:"Watch: Customizing columns + key metrics (30 min)", note:""},
+          {text:"Watch: Phase 0 — Pixel warmup + creative testing (47 min)", note:""},
+          {text:"Watch: Analyzing Phase 0 results (14 min)", note:""},
+          {text:"Watch: Phase 1 — Detailed targeting + interest testing (27 min)", note:""},
+          {text:"Action: Plan your Phase 0 campaign for home textiles", note:"Write it out before spending"},
+        ]
+      },
+      {
+        name: "Day 12", badge:"meta", badgeLabel:"Meta Ads",
+        focus:"Meta Ads course: Session 9 — Phases 2–5 (Scaling foundations)",
+        tasks:[
+          {text:"Watch: Phase 2 — Audience refining + A/B testing (17 min)", note:""},
+          {text:"Watch: Phases 3–5 — Scaling attempts + retargeting (56 min)", note:""},
+          {text:"Watch: Phase 7 — Ad Scaling Strategy (48 min)", note:"Watch even before you scale"},
+          {text:"Action: Create a scaling roadmap doc for your store", note:"Portfolio task"},
+        ]
+      },
+      {
+        name: "Day 13", badge:"build", badgeLabel:"Build",
+        focus:"Create + launch your first real ad campaign",
+        tasks:[
+          {text:"Watch: Session 10 — Catalog Sales Campaign + Messaging campaign (68 min)", note:""},
+          {text:"Action: Create your first Phase 0 campaign (small budget ok — even $5)", note:"Real results = better portfolio"},
+          {text:"Action: Document your targeting choices and ad setup", note:"Screenshot everything"},
+          {text:"Action: Set up automated rules to control budget", note:""},
+        ]
+      },
+      {
+        name: "Day 14", badge:"both", badgeLabel:"Review",
+        focus:"Analyze results + catch-up",
+        tasks:[
+          {text:"Review your live campaign metrics (clicks, CPM, CTR)", note:""},
+          {text:"Watch: Session 17 — Common Issues (42 min)", note:"Useful if ads get flagged"},
+          {text:"Watch: Shopify course Session 7 — Order fulfillment + cash flow (32 min)", note:""},
+          {text:"Action: Write week 2 reflection + add campaign screenshot to portfolio", note:""},
+        ]
+      },
+    ]
+  },
+  {
+    label: "Week 3 (Days 15–21) — Advanced Meta + optimize + portfolio finish",
+    days: [
+      {
+        name: "Day 15", badge:"meta", badgeLabel:"Meta Ads",
+        focus:"Meta Ads course: Sessions 11–12 (Other objectives + Lead gen)",
+        tasks:[
+          {text:"Watch: Awareness, Traffic, Engagement, Page Likes campaigns (41 min)", note:""},
+          {text:"Watch: Lead generation campaigns + Instant Forms (38 min)", note:""},
+          {text:"Watch: Leads management in Leads Center (22 min)", note:""},
+          {text:"Action: Optimize your running campaign based on Phase 0 results", note:""},
+        ]
+      },
+      {
+        name: "Day 16", badge:"meta", badgeLabel:"Meta Ads",
+        focus:"Meta Ads course: Session 14 — ManyChat automation",
+        tasks:[
+          {text:"Watch: ManyChat for product sales via messages (75 min)", note:"High ROI for textile stores"},
+          {text:"Watch: Automating customer support with ManyChat (20 min)", note:""},
+          {text:"Action: Set up a basic ManyChat flow for your Facebook page", note:"Portfolio differentiator"},
+        ]
+      },
+      {
+        name: "Day 17", badge:"meta", badgeLabel:"Meta Ads",
+        focus:"Meta Ads course: Session 15 — Dropshipping with Meta (deep-dive)",
+        tasks:[
+          {text:"Watch: Models, stores, customer journey (87 min)", note:""},
+          {text:"Watch: Find winning products that sell (77 min)", note:"Apply to home textiles"},
+          {text:"Watch: Complete Marketing Blueprint (part review) (60 min)", note:""},
+          {text:"Action: Apply winning product criteria to refine your textile product list", note:""},
+        ]
+      },
+      {
+        name: "Day 18", badge:"build", badgeLabel:"Build",
+        focus:"Advance your campaign to Phase 1 or 2",
+        tasks:[
+          {text:"Analyze Phase 0 results — identify winning ad sets", note:""},
+          {text:"Launch Phase 1 campaign (interest targeting)", note:""},
+          {text:"Action: Create a second ad creative (different format — image vs video)", note:"Portfolio: A/B test example"},
+          {text:"Action: Document your ROAS, CPC, CTR in a results spreadsheet", note:""},
+        ]
+      },
+      {
+        name: "Day 19", badge:"meta", badgeLabel:"Meta Ads",
+        focus:"Meta Ads course: Session 13 — Clients + agency skills",
+        tasks:[
+          {text:"Watch: How digital marketing agencies make money (6 min)", note:""},
+          {text:"Watch: Creating a sales strategy for clients (41 min)", note:"For future freelance work"},
+          {text:"Watch: How to get clients + Fiverr (37 min)", note:""},
+          {text:"Action: Draft a simple one-page service offer for future clients", note:"Portfolio task"},
+        ]
+      },
+      {
+        name: "Day 20", badge:"build", badgeLabel:"Build",
+        focus:"Portfolio assembly day",
+        tasks:[
+          {text:"Compile all screenshots: store, ads, results, pixel setup", note:""},
+          {text:"Write a case study: 'I built and ran ads for a home textile Shopify store'", note:"Use real numbers"},
+          {text:"Record a short Loom walkthrough of your store + ad account", note:"Video proof is powerful for jobs"},
+          {text:"Update LinkedIn / CV with new skills: Meta Ads, Shopify, e-commerce", note:""},
+        ]
+      },
+      {
+        name: "Day 21", badge:"both", badgeLabel:"Wrap-up",
+        focus:"Final review + next steps",
+        tasks:[
+          {text:"Watch any remaining sessions you missed", note:""},
+          {text:"Review Session 16 (Guaranteed Income strategies) for local ideas", note:""},
+          {text:"Action: Write your 30-day plan post-course (jobs, freelance, or scale store)", note:""},
+          {text:"Action: Share your store link + portfolio with at least 3 people", note:"Get feedback"},
+        ]
+      },
+    ]
+  }
+];
+
+let done = new Set();
+
+function renderWeeks(){
+  const container = document.getElementById('weekPanels');
+  container.innerHTML = '';
+  WEEKS.forEach((week, wi) => {
+    const panel = document.createElement('div');
+    panel.className = 'week-panel' + (wi===0?' active':'');
+    panel.id = 'week'+wi;
+    panel.innerHTML = `<div class="week-label">${week.label}</div>`;
+    week.days.forEach((day, di) => {
+      const dayKey = `${wi}-${di}`;
+      const completedTasks = day.tasks.filter((_,ti) => done.has(`${dayKey}-${ti}`)).length;
+      const total = day.tasks.length;
+      const pct = Math.round(completedTasks/total*100);
+      const cardEl = document.createElement('div');
+      cardEl.className = 'day-card';
+      cardEl.id = `card-${dayKey}`;
+      const badgeClass = day.badge==='shopify'?'badge-shopify':day.badge==='meta'?'badge-meta':day.badge==='build'?'badge-build':'badge-both';
+      cardEl.innerHTML = `
+        <div class="day-header" onclick="toggleDay('${dayKey}')">
+          <div class="day-title">
+            <span class="day-badge ${badgeClass}">${day.badgeLabel}</span>
+            <span class="day-name">${day.name} — ${day.focus}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="day-meta">${completedTasks}/${total}</span>
+            <i class="ti ti-chevron-down chevron" aria-hidden="true"></i>
+          </div>
+        </div>
+        <div class="day-body">
+          <div class="progress-bar-wrap"><div class="progress-bar" id="bar-${dayKey}" style="width:${pct}%"></div></div>
+          <div class="progress-label" id="pct-${dayKey}">${pct}% complete</div>
+          <ul class="task-list" id="tasks-${dayKey}">
+            ${day.tasks.map((t,ti) => {
+              const tKey = `${dayKey}-${ti}`;
+              const isDone = done.has(tKey);
+              return `<li class="task-item${isDone?' done':''}" onclick="toggleTask('${dayKey}',${ti})">
+                <div class="checkbox">${isDone?'<i class="ti ti-check" style="font-size:11px;color:#fff" aria-hidden="true"></i>':''}</div>
+                <div>
+                  <div class="task-text">${t.text}</div>
+                  ${t.note?`<div class="task-note">${t.note}</div>`:''}
+                </div>
+              </li>`;
+            }).join('')}
+          </ul>
+        </div>`;
+      panel.appendChild(cardEl);
+    });
+    container.appendChild(panel);
+  });
+  updateStats();
+}
+
+function toggleDay(dayKey){
+  const card = document.getElementById('card-'+dayKey);
+  card.classList.toggle('open');
+}
+
+function toggleTask(dayKey, ti){
+  const tKey = `${dayKey}-${ti}`;
+  if(done.has(tKey)) done.delete(tKey); else done.add(tKey);
+  refreshDay(dayKey);
+  updateStats();
+}
+
+function refreshDay(dayKey){
+  const [wi,di] = dayKey.split('-').map(Number);
+  const day = WEEKS[wi].days[di];
+  const total = day.tasks.length;
+  const completedTasks = day.tasks.filter((_,ti) => done.has(`${dayKey}-${ti}`)).length;
+  const pct = Math.round(completedTasks/total*100);
+  document.getElementById('bar-'+dayKey).style.width = pct+'%';
+  document.getElementById('pct-'+dayKey).textContent = pct+'% complete';
+  const card = document.getElementById('card-'+dayKey);
+  card.querySelector('.day-meta').textContent = `${completedTasks}/${total}`;
+  const ul = document.getElementById('tasks-'+dayKey);
+  ul.querySelectorAll('.task-item').forEach((li,ti) => {
+    const isDone = done.has(`${dayKey}-${ti}`);
+    li.classList.toggle('done', isDone);
+    li.querySelector('.checkbox').innerHTML = isDone?'<i class="ti ti-check" style="font-size:11px;color:#fff" aria-hidden="true"></i>':'';
+  });
+}
+
+function updateStats(){
+  let total = 0, completed = 0;
+  WEEKS.forEach((w,wi) => w.days.forEach((d,di) => {
+    d.tasks.forEach((_,ti) => { total++; if(done.has(`${wi}-${di}-${ti}`)) completed++; });
+  }));
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('doneCount').textContent = completed;
+  document.getElementById('pctCount').textContent = Math.round(completed/total*100)+'%';
+}
+
+function showWeek(idx){
+  document.querySelectorAll('.week-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+}
+
+renderWeeks();
+</script>
+
+<script>
+const btn=document.getElementById('themeToggle');
+btn.onclick=()=>{
+ document.body.classList.toggle('dark');
+ const d=document.body.classList.contains('dark');
+ btn.textContent=d?'☀️ Light':'🌙 Dark';
+};
+</script>
+<style>
+body.dark{
+background:#121212;
+--surface-0:#1a1a1a;--surface-1:#1f1f1f;--surface-2:#262626;
+--text-primary:#f5f5f5;--text-secondary:#d0d0d0;--text-muted:#aaa;
+--border:#444;--border-strong:#666;
+}
+</style>
